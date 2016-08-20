@@ -16,10 +16,19 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name=".firebase.SteelFirebaseInstanceIdService">
+        <service android:name=".firebase.SteelFirebaseInstanceIdService">
             <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+            </intent-filter>
+        </service>
+        <service android:name=".firebase.SteelFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="" />
+            </intent-filter>
+        </service>
+        <service android:name=".notification.SteelNotificationListener">
+            <intent-filter>
+                <action android:name="" />
             </intent-filter>
         </service>
     </application>
