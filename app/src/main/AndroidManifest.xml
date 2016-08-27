@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.cazdevelopers.steel">
+          package="com.cazdevelopers.steel">
+
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
         android:allowBackup="true"
@@ -10,27 +13,38 @@
         android:theme="@style/AppTheme">
         <activity android:name=".MainActivity">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
-        <service android:name=".firebase.SteelFirebaseInstanceIdService">
+        <!--<service android:name=".firebase.SteelFirebaseInstanceIdService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
-        </service>
-        <service android:name=".firebase.SteelFirebaseMessagingService">
+        </service>-->
+        <!--<service android:name=".firebase.SteelFirebaseMessagingService">
             <intent-filter>
                 <action android:name="" />
             </intent-filter>
-        </service>
-        <service android:name=".notification.SteelNotificationListener">
+        </service>-->
+        <service
+            android:name=".notification.SteelNotificationListener"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
             <intent-filter>
-                <action android:name="" />
+                <action android:name="android.service.notification.NotificationListenerService"/>
             </intent-filter>
         </service>
+        <receiver
+            android:name=".SteelBroadcastReceiver"
+            android:enabled="true"
+            android:exported="false"
+            android:label="Steel Broadcast Receiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
