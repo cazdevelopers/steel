@@ -18,8 +18,6 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".auth.GoogleSignInActivity"
-            android:excludeFromRecents="true" />
 
         <!--<service android:name=".firebase.SteelFirebaseInstanceIdService">
             <intent-filter>
