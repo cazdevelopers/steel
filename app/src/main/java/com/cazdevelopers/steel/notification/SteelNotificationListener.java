@@ -12,6 +12,10 @@ public class SteelNotificationListener extends NotificationListenerService {
 
 	@Override
 	public void onNotificationPosted(StatusBarNotification sbn) {
+		// Don't do anything with notifications to this app - SteelFirebaseMessagingService takes care of that
+		if (!sbn.getPackageName().equals(BuildConfig.APPLICATION_ID)) {
+
+		}
 //        if (!sbn.getPackageName().equals(BuildConfig.APPLICATION_ID) && !sbn.isOngoing()) {
 //            Notification.Builder builder = new Notification.Builder(this);
 //            builder.setContentTitle("You got a notification!");
