@@ -7,8 +7,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,8 +26,10 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 public class MainActivity extends BaseActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+	private final static String TAG = MainActivity.class.getSimpleName();
 	private FirebaseAuth firebaseAuth;
 	private GoogleApiClient googleApiClient;
 	private MenuItem logout;
@@ -42,30 +47,34 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
 		}
 
 		firebaseAuth = FirebaseAuth.getInstance();
-		if (firebaseAuth.getCurrentUser() == null) {
-			loggedIn = false;
-			new AlertDialog.Builder(this).setMessage("You must log in to continue")
-										 .setPositiveButton("Ok", (dialog, which) ->
-										 {
-											 googleApiClient = new GoogleApiClient.Builder(this, this, this)
-													 .addApi(Auth.GOOGLE_SIGN_IN_API,
-															 new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-																	 .requestEmail()
-																	 .build()).build();
-											 googleApiClient.connect();
-											 showProgressDialog("Connecting to Google");
-										 })
-										 .setNegativeButton("Cancel", (dialog, which) -> finish())
-										 .show();
-		}
+//		if (firebaseAuth.getCurrentUser() == null) {
+//			loggedIn = false;
+//			new AlertDialog.Builder(this).setMessage("You must log in to continue")
+//										 .setPositiveButton("Ok", (dialog, which) ->
+//										 {
+//											 googleApiClient = new GoogleApiClient.Builder(this, this, this)
+//													 .addApi(Auth.GOOGLE_SIGN_IN_API,
+//															 new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+//																	 .requestEmail()
+//																	 .build()).build();
+//											 googleApiClient.connect();
+//											 showProgressDialog("Connecting to Google");
+//										 })
+//										 .setNegativeButton("Cancel", (dialog, which) -> finish())
+//										 .show();
+//		}
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.main_menu, menu);
-		logout = menu.findItem(R.id.logout);
-		logout.setVisible(loggedIn);
 		return true;
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		menu.findItem(R.id.logout).setVisible(loggedIn);
+		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override
@@ -77,9 +86,14 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
 			case R.id.token:
 				SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 				String token = sharedPreferences.getString("token", null);
+				if (token == null) {
+					Log.d(TAG, "onOptionsItemSelected: preferences has null token");
+					token = FirebaseInstanceId.getInstance().getToken();
+				}
 				TextView textView = new TextView(this);
 				textView.setText(token == null ? "No token found" : token);
 				textView.setTextIsSelectable(true);
+				textView.setGravity(Gravity.CENTER);
 				new AlertDialog.Builder(this).setView(textView).setNeutralButton("Ok", null).show();
 				break;
 		}
@@ -121,8 +135,7 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
 	private void firebaseAuthWithGoogle(GoogleSignInAccount account) {
 		showProgressDialog("Authenticating");
 
-		AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
-		firebaseAuth.signInWithCredential(credential)
+		firebaseAuth.signInWithCredential(GoogleAuthProvider.getCredential(account.getIdToken(), null))
 					.addOnCompleteListener(this, task -> {
 						if (!task.isSuccessful()) {
 							Toast.makeText(this, "Authentication failed.", Toast.LENGTH_SHORT).show();
