@@ -6,6 +6,7 @@ import android.util.Log;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -13,19 +14,23 @@ import java.util.Map;
  */
 public class SteelFirebaseMessagingService extends FirebaseMessagingService {
 	private static final String TAG = SteelFirebaseMessagingService.class.getSimpleName();
+	public static final String MESSAGE = "message";
+	public static final String NUMBER = "number";
 
 	@Override
 	public void onMessageReceived(RemoteMessage remoteMessage) {
-		Log.d(TAG, "onMessageReceived: received message");
 		if (!remoteMessage.getData().isEmpty()) {
-			Log.d(TAG, "onMessageReceived: message has data");
 			Map<String, String> data = remoteMessage.getData();
-			if (data.containsKey("message")) {
-				SmsManager smsManager = SmsManager.getDefault();
-				smsManager.sendTextMessage(data.get("number"), null, data.get("message"), null, null);
-				Log.d(TAG, "onMessageReceived: sms sent");
-				return;
+			SmsManager smsManager = SmsManager.getDefault();
+			String message = data.get(MESSAGE);
+			ArrayList<String> strings = smsManager.divideMessage(message);
+			if (strings.size() == 1) {
+				smsManager.sendTextMessage(data.get(NUMBER), null, message, null, null);
+			} else {
+				smsManager.sendMultipartTextMessage(data.get(NUMBER), null, strings, null, null);
 			}
+			Log.d(TAG, "onMessageReceived: sms sent");
+			return;
 		}
 
 		super.onMessageReceived(remoteMessage);
