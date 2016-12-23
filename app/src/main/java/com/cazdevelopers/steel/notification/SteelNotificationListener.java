@@ -1,9 +1,11 @@
 package com.cazdevelopers.steel.notification;
 
+import android.preference.PreferenceManager;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 
-import com.cazdevelopers.steel.BuildConfig;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by coreywoodfield on 8/10/16.
@@ -12,9 +14,9 @@ public class SteelNotificationListener extends NotificationListenerService {
 
 	@Override
 	public void onNotificationPosted(StatusBarNotification sbn) {
-		// Don't do anything with notifications to this app - SteelFirebaseMessagingService takes care of that
-		if (!sbn.getPackageName().equals(BuildConfig.APPLICATION_ID)) {
-
+		Set<String> filter = PreferenceManager.getDefaultSharedPreferences(this).getStringSet("filter", new HashSet<>(0));
+		if (!filter.contains(sbn.getPackageName())) {
+			// TODO: 12/23/16 send notification to computer
 		}
 	}
 
