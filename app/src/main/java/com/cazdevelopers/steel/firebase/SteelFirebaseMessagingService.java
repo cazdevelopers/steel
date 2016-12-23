@@ -1,5 +1,6 @@
 package com.cazdevelopers.steel.firebase;
 
+import android.content.Intent;
 import android.telephony.SmsManager;
 import android.util.Log;
 
@@ -16,23 +17,30 @@ public class SteelFirebaseMessagingService extends FirebaseMessagingService {
 	private static final String TAG = SteelFirebaseMessagingService.class.getSimpleName();
 	public static final String MESSAGE = "message";
 	public static final String NUMBER = "number";
+	private final SmsManager smsManager = SmsManager.getDefault();
 
 	@Override
 	public void onMessageReceived(RemoteMessage remoteMessage) {
 		if (!remoteMessage.getData().isEmpty()) {
 			Map<String, String> data = remoteMessage.getData();
-			SmsManager smsManager = SmsManager.getDefault();
-			String message = data.get(MESSAGE);
-			ArrayList<String> strings = smsManager.divideMessage(message);
-			if (strings.size() == 1) {
-				smsManager.sendTextMessage(data.get(NUMBER), null, message, null, null);
-			} else {
-				smsManager.sendMultipartTextMessage(data.get(NUMBER), null, strings, null, null);
+			for (String number : data.get(NUMBER).split(",")) {
+				Log.d(TAG, "onMessageReceived: Sending text to " + number);
+				sendMessage(smsManager.divideMessage(data.get(MESSAGE)), number);
 			}
 			Log.d(TAG, "onMessageReceived: sms sent");
-			return;
 		}
+	}
 
-		super.onMessageReceived(remoteMessage);
+	private void sendMessage(ArrayList<String> message, String number) {
+		if (message.size() == 1) {
+			smsManager.sendTextMessage(number, null, message.get(0), null, null);
+		} else {
+			smsManager.sendMultipartTextMessage(number, null, message, null, null);
+		}
+	}
+
+	@Override
+	protected Intent zzF(Intent intent) {
+		return intent;
 	}
 }
