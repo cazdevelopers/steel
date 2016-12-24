@@ -1,6 +1,5 @@
 package com.cazdevelopers.steel.firebase;
 
-import android.content.Intent;
 import android.telephony.SmsManager;
 import android.util.Log;
 
@@ -27,7 +26,6 @@ public class SteelFirebaseMessagingService extends FirebaseMessagingService {
 				Log.d(TAG, "onMessageReceived: Sending text to " + number);
 				sendMessage(smsManager.divideMessage(data.get(MESSAGE)), number);
 			}
-			Log.d(TAG, "onMessageReceived: sms sent");
 		}
 	}
 
@@ -37,10 +35,5 @@ public class SteelFirebaseMessagingService extends FirebaseMessagingService {
 		} else {
 			smsManager.sendMultipartTextMessage(number, null, message, null, null);
 		}
-	}
-
-	@Override
-	protected Intent zzF(Intent intent) {
-		return intent;
 	}
 }
